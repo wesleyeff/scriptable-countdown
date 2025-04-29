@@ -59,24 +59,19 @@ module.exports = class CountdownWidget {
 
       // Birthdays
       {
-        title: 'Jesus 🎂',
+        title: 'Evie 🎂',
         month: 4,
-        day: 15,
+        day: 2,
       },
       {
         title: 'Wes 🎂',
         month: 5,
         day: 10,
       },
-      {
-        title: 'Evie 🎂',
-        month: 4,
-        day: 2,
-      },
       // {
-      //   title: 'Marlow 🎂',
-      //   month: 1,
-      //   day: 11,
+      //   title: 'James 🎂',
+      //   month: 6,
+      //   day: 22,
       // },
 
       // Yearly events
@@ -110,19 +105,6 @@ module.exports = class CountdownWidget {
         month: 7,
         day: 17,
         year: 2025,
-      },
-
-      {
-        title: 'Test January',
-        month: 1,
-        day: 3,
-        year: 2026,
-      },
-      {
-        title: 'Test February',
-        month: 2,
-        day: 21,
-        year: 2026,
       },
     ]
 
@@ -175,6 +157,9 @@ module.exports = class CountdownWidget {
       date.setDate(event.day)
 
       if (event.year) {
+        date.setFullYear(event.year)
+        event.Date = date
+        event.daysLeft = this.calculateDaysLeft(date)
       } else {
         date.setFullYear(date.getFullYear())
         event.Date = date
