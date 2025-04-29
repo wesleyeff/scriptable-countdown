@@ -117,8 +117,18 @@ module.exports = class CountdownWidget {
 
     let events = this.getEvents()
 
+    const linesPerWidgetSize = {
+      small: 10,
+      medium: 10,
+      large: 24,
+      extraLarge: 24,
+    }
+
+    const numItems = linesPerWidgetSize[this.config.widgetFamily] || 15
+    const numItemsToShow = Math.min(events.length, numItems)
+
     // Add events to the UI list
-    events.forEach((event, i) => {
+    events.slice(0, numItemsToShow).forEach((event, i) => {
       let days = `${event.daysLeft}`
 
       if (event.daysLeft === 0) {
