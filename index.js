@@ -8,6 +8,9 @@
  * const CountdownWidget = importModule('countdown')
  * new CountdownWidget().run()
  */
+
+// let config = {} // uncomment this for testing
+
 module.exports = class CountdownWidget {
   run() {
     let widget = this.deployWidget()
@@ -20,15 +23,7 @@ module.exports = class CountdownWidget {
     Script.complete()
   }
 
-  deployWidget() {
-    const FONT_NAME = 'Menlo'
-    const FONT_SIZE = 12
-
-    let list = new ListWidget()
-
-    list.backgroundColor = new Color('#151515')
-    list.setPadding(15, 10, 15, 15)
-
+  getEvents() {
     let events = [
       // Holidays
       {
@@ -174,9 +169,17 @@ module.exports = class CountdownWidget {
       date.setMonth(event.month - 1)
       date.setDate(event.day)
 
-      date.setFullYear(event.year || date.getFullYear())
+      if (event.year) {
+      } else {
+        date.setFullYear(date.getFullYear())
+        event.Date = date
+        event.daysLeft = this.calculateDaysLeft(date)
+        if (event.daysLeft < 0) {
+          date.setFullYear(date.getFullYear() + 1)
       event.Date = date
       event.daysLeft = this.calculateDaysLeft(date)
+        }
+      }
 
       console.log(JSON.stringify(event, '', 2))
       console.log('\n\n\n')
@@ -188,6 +191,20 @@ module.exports = class CountdownWidget {
     events.sort((a, b) => {
       return a.daysLeft > b.daysLeft
     })
+
+    return events
+  }
+
+  deployWidget() {
+    const FONT_NAME = 'Menlo'
+    const FONT_SIZE = 12
+
+    let list = new ListWidget()
+
+    list.backgroundColor = new Color('#151515')
+    list.setPadding(5, 10, 5, 5)
+
+    let events = this.getEvents()
 
     // Add events to the UI list
     events.forEach((event, i) => {
