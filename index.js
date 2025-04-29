@@ -37,8 +37,11 @@ module.exports = class CountdownWidget {
     Script.complete()
   }
 
-  getEvents() {
+  getEvents(maxItems) {
     let events = this.events
+
+    let oneOffEvents = []
+    let yearlyEvents = []
 
     // Add some test data if not running in a widget
     if (!this.config.runsInWidget) {
@@ -92,6 +95,7 @@ module.exports = class CountdownWidget {
         date.setFullYear(event.year)
         event.Date = date
         event.daysLeft = this.calculateDaysLeft(date)
+        oneOffEvents.push(event)
       } else {
         date.setFullYear(date.getFullYear())
         event.Date = date
@@ -101,16 +105,24 @@ module.exports = class CountdownWidget {
           event.Date = date
           event.daysLeft = this.calculateDaysLeft(date)
         }
+        yearlyEvents.push(event)
       }
 
       console.log(JSON.stringify(event, '', 2))
       console.log('\n\n\n')
     })
+    oneOffEvents = oneOffEvents
+      .filter((a) => a.daysLeft >= 0)
+      .sort((a, b) => a.daysLeft > b.daysLeft)
+    yearlyEvents = yearlyEvents
+      .filter((a) => a.daysLeft >= 0)
+      .sort((a, b) => a.daysLeft > b.daysLeft)
 
-    events = events.filter((a) => a.daysLeft >= 0)
+    // Combine the one-off and yearly events
+    events = oneOffEvents.concat(yearlyEvents)
 
     // Sort ascending by the number of days left
-    events.sort((a, b) => {
+    events = events.slice(0, maxItems).sort((a, b) => {
       return a.daysLeft > b.daysLeft
     })
 
@@ -126,16 +138,16 @@ module.exports = class CountdownWidget {
     list.backgroundColor = new Color('#151515')
     list.setPadding(5, 10, 5, 5)
 
-    let events = this.getEvents()
-
     const linesPerWidgetSize = {
       small: 10,
       medium: 10,
       large: 24,
       extraLarge: 24,
     }
-
     const numItems = linesPerWidgetSize[this.config.widgetFamily] || 15
+
+    let events = this.getEvents(numItems)
+
     const numItemsToShow = Math.min(events.length, numItems)
 
     // Add events to the UI list
@@ -168,9 +180,16 @@ module.exports = class CountdownWidget {
     let rootStack = widget.addStack()
     rootStack.layoutVertically()
 
-    let events = this.getEvents()
+    const linesPerWidgetSize = {
+      small: 9,
+      medium: 9,
+      large: 18,
+      extraLarge: 18,
+    }
+    const numItems = linesPerWidgetSize[this.config.widgetFamily] || 9
+    let events = this.getEvents(numItems)
 
-    events.slice(0, 9).forEach((event, i) => {
+    events.slice(0, numItems).forEach((event, i) => {
       let days = `${event.daysLeft}`
 
       if (event.daysLeft === 0) {
@@ -179,7 +198,7 @@ module.exports = class CountdownWidget {
 
       let row = rootStack.addStack()
       let t = row.addText(`${event.title}:`)
-      // t.textColor = this.decideDisplayColor(event.daysLeft)
+      t.textColor = this.decideDisplayColor(event.daysLeft)
       t.font = new Font(FONT_NAME, FONT_SIZE)
 
       row.addSpacer()
