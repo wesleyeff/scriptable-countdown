@@ -197,14 +197,14 @@ module.exports = class CountdownWidget {
       }
 
       let row = rootStack.addStack()
-      let t = row.addText(`${event.title}:`)
-      t.textColor = this.decideDisplayColor(event.daysLeft)
-      t.font = new Font(FONT_NAME, FONT_SIZE)
+      let labelText = row.addText(`${event.title}:`)
+      labelText.textColor = this.decideDisplayColor(event.daysLeft)
+      labelText.font = new Font(FONT_NAME, FONT_SIZE)
 
       row.addSpacer()
-      let t2 = row.addText(days)
-      t2.textColor = this.decideDisplayColor(event.daysLeft)
-      t2.font = new Font(FONT_NAME, FONT_SIZE)
+      let countText = row.addText(days)
+      countText.textColor = this.decideDisplayColor(event.daysLeft)
+      countText.font = new Font(FONT_NAME, FONT_SIZE)
     })
 
     return widget
