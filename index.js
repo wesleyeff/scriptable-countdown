@@ -26,6 +26,17 @@ module.exports = class CountdownWidget {
     Script.complete()
   }
 
+  runStack() {
+    let widget = this.deployStackWidget()
+
+    if (!this.config.runsInWidget) {
+      widget.presentSmall()
+    }
+
+    Script.setWidget(widget)
+    Script.complete()
+  }
+
   getEvents() {
     let events = this.events
 
@@ -143,6 +154,41 @@ module.exports = class CountdownWidget {
     })
 
     return list
+  }
+
+  deployStackWidget() {
+    const FONT_NAME = 'Menlo'
+    const FONT_SIZE = 12
+
+    let widget = new ListWidget()
+
+    widget.backgroundColor = new Color('#151515')
+    widget.setPadding(5, 10, 5, 5)
+
+    let rootStack = widget.addStack()
+    rootStack.layoutVertically()
+
+    let events = this.getEvents()
+
+    events.slice(0, 9).forEach((event, i) => {
+      let days = `${event.daysLeft}`
+
+      if (event.daysLeft === 0) {
+        days = 'Today!'
+      }
+
+      let row = rootStack.addStack()
+      let t = row.addText(`${event.title}:`)
+      // t.textColor = this.decideDisplayColor(event.daysLeft)
+      t.font = new Font(FONT_NAME, FONT_SIZE)
+
+      row.addSpacer()
+      let t2 = row.addText(days)
+      t2.textColor = this.decideDisplayColor(event.daysLeft)
+      t2.font = new Font(FONT_NAME, FONT_SIZE)
+    })
+
+    return widget
   }
 
   calculateDaysLeft(future) {
