@@ -7,5 +7,5 @@ Then create a script in scriptable with the following js:
 
 ```js
 const CountdownWidget = importModule('countdown')
-new CountdownWidget().run()
+new CountdownWidget(config).run()
 ```

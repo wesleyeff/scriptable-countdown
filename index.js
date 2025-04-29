@@ -6,16 +6,18 @@
  * At the top of your script put the following code to run this widget
  *
  * const CountdownWidget = importModule('countdown')
- * new CountdownWidget().run()
+ * new CountdownWidget(config).run()
  */
 
-// let config = {} // uncomment this for testing
-
 module.exports = class CountdownWidget {
+  constructor(config) {
+    this.config = config
+  }
+
   run() {
     let widget = this.deployWidget()
 
-    if (!config.runsInWidget) {
+    if (!this.config.runsInWidget) {
       widget.presentLarge()
     }
 
@@ -109,7 +111,7 @@ module.exports = class CountdownWidget {
     ]
 
     // Add some test data if not running in a widget
-    if (!config.runsInWidget) {
+    if (!this.config.runsInWidget) {
       let testToday = new Date(Date.now())
       let testTomorrow = new Date(Date.now())
       testTomorrow.setDate(testTomorrow.getDate() + 1)
