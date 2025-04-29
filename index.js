@@ -64,15 +64,20 @@ module.exports = class CountdownWidget {
         day: 15,
       },
       {
-        title: 'Santa 🎂',
-        month: 12,
-        day: 26,
+        title: 'Wes 🎂',
+        month: 5,
+        day: 10,
       },
       {
-        title: 'St P. 🎂',
-        month: 3,
-        day: 17,
+        title: 'Evie 🎂',
+        month: 4,
+        day: 2,
       },
+      // {
+      //   title: 'Marlow 🎂',
+      //   month: 1,
+      //   day: 11,
+      // },
 
       // Yearly events
       //       {
@@ -176,8 +181,8 @@ module.exports = class CountdownWidget {
         event.daysLeft = this.calculateDaysLeft(date)
         if (event.daysLeft < 0) {
           date.setFullYear(date.getFullYear() + 1)
-      event.Date = date
-      event.daysLeft = this.calculateDaysLeft(date)
+          event.Date = date
+          event.daysLeft = this.calculateDaysLeft(date)
         }
       }
 
