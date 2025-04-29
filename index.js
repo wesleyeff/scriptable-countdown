@@ -10,8 +10,9 @@
  */
 
 module.exports = class CountdownWidget {
-  constructor(config) {
+  constructor({ config, events }) {
     this.config = config
+    this.events = events
   }
 
   run() {
@@ -26,89 +27,7 @@ module.exports = class CountdownWidget {
   }
 
   getEvents() {
-    let events = [
-      // Holidays
-      {
-        title: '🎆',
-        month: 1,
-        day: 1,
-      },
-      {
-        title: '🦫',
-        month: 2,
-        day: 2,
-      },
-      {
-        title: '💝',
-        month: 2,
-        day: 14,
-      },
-      {
-        title: '🇺🇸🎆',
-        month: 7,
-        day: 4,
-      },
-      {
-        title: '🎃',
-        month: 10,
-        day: 31,
-      },
-      {
-        title: '🎄',
-        month: 12,
-        day: 25,
-      },
-
-      // Birthdays
-      {
-        title: 'Evie 🎂',
-        month: 4,
-        day: 2,
-      },
-      {
-        title: 'Wes 🎂',
-        month: 5,
-        day: 10,
-      },
-      // {
-      //   title: 'James 🎂',
-      //   month: 6,
-      //   day: 22,
-      // },
-
-      // Yearly events
-      //       {
-      //         title: "🏊‍♂️",
-      //         month: 5,
-      //         day: 27,
-      //       },
-
-      // One-off events
-      {
-        title: 'Switch 2 🕹️',
-        month: 6,
-        day: 5,
-        year: 2025,
-      },
-      {
-        title: '6th grade 🎓',
-        month: 5,
-        day: 29,
-        year: 2025,
-      },
-      {
-        title: 'Superman 🍿',
-        month: 7,
-        day: 11,
-        year: 2025,
-      },
-      {
-        title: 'DK Bananza 🍌',
-        month: 7,
-        day: 17,
-        year: 2025,
-      },
-    ]
+    let events = this.events
 
     // Add some test data if not running in a widget
     if (!this.config.runsInWidget) {
@@ -258,5 +177,3 @@ module.exports = class CountdownWidget {
     return Color.white()
   }
 }
-
-// new CountdownWidget().run();
