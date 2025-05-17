@@ -1,22 +1,15 @@
-// Variables used by Scriptable.
-// These must be at the very top of the file. Do not edit.
-// icon-color: blue; icon-glyph: calendar-alt;
-
-/**
- * At the top of your script put the following code to run this widget
- *
- * const CountdownWidget = importModule('countdown')
- * new CountdownWidget(config).run()
- */
+const fm = importModule('countdown/file-manager')
 
 module.exports = class CountdownWidget {
-  constructor({ config, events }) {
+  constructor({ config, events, eventPath }) {
     this.config = config
     this.events = events
+    console.log(eventPath)
+    this.eventPath = eventPath || 'events.json'
   }
 
-  run() {
-    let widget = this.deployWidget()
+  async run() {
+    let widget = await this.deployWidget()
 
     if (!this.config.runsInWidget) {
       widget.presentLarge()
@@ -26,8 +19,8 @@ module.exports = class CountdownWidget {
     Script.complete()
   }
 
-  runStack() {
-    let widget = this.deployStackWidget()
+  async runStack() {
+    let widget = await this.deployStackWidget()
 
     if (!this.config.runsInWidget) {
       widget.presentSmall()
@@ -37,8 +30,11 @@ module.exports = class CountdownWidget {
     Script.complete()
   }
 
-  getEvents(maxItems) {
-    let events = this.events
+  async getEvents(maxItems) {
+    let events = await fm.readEvents(this.eventPath)
+    // console.log(events)
+
+    // let events = this.events
 
     let oneOffEvents = []
     let yearlyEvents = []
@@ -55,36 +51,36 @@ module.exports = class CountdownWidget {
       let testYellow = new Date(Date.now())
       testYellow.setDate(testYellow.getDate() + 29)
 
-      events.push(
-        {
-          title: 'Test Today',
-          month: testToday.getMonth() + 1,
-          day: testToday.getDate(),
-          year: testToday.getFullYear(),
-        },
-        {
-          title: 'Test Tomorrow',
-          month: testTomorrow.getMonth() + 1,
-          day: testTomorrow.getDate(),
-          year: testTomorrow.getFullYear(),
-        },
-        {
-          title: 'Test Red',
-          month: testRed.getMonth() + 1,
-          day: testRed.getDate(),
-          year: testRed.getFullYear(),
-        },
-        {
-          title: 'Test Yellow',
-          month: testYellow.getMonth() + 1,
-          day: testYellow.getDate(),
-        },
-      )
+      // events.push(
+      //   {
+      //     title: 'Test Today',
+      //     month: testToday.getMonth() + 1,
+      //     day: testToday.getDate(),
+      //     year: testToday.getFullYear(),
+      //   },
+      //   {
+      //     title: 'Test Tomorrow',
+      //     month: testTomorrow.getMonth() + 1,
+      //     day: testTomorrow.getDate(),
+      //     year: testTomorrow.getFullYear(),
+      //   },
+      //   {
+      //     title: 'Test Red',
+      //     month: testRed.getMonth() + 1,
+      //     day: testRed.getDate(),
+      //     year: testRed.getFullYear(),
+      //   },
+      //   {
+      //     title: 'Test Yellow',
+      //     month: testYellow.getMonth() + 1,
+      //     day: testYellow.getDate(),
+      //   },
+      // )
     }
 
     // Create Date object in events list and calculate the number of days left
     events.forEach((event, i) => {
-      console.log(`creating: ${event.title}`)
+      // console.log(`creating: ${event.title}`)
 
       let date = new Date(Date.now())
 
@@ -95,6 +91,7 @@ module.exports = class CountdownWidget {
         date.setFullYear(event.year)
         event.Date = date
         event.daysLeft = this.calculateDaysLeft(date)
+        // event.oneOff = true
         oneOffEvents.push(event)
       } else {
         date.setFullYear(date.getFullYear())
@@ -108,8 +105,8 @@ module.exports = class CountdownWidget {
         yearlyEvents.push(event)
       }
 
-      console.log(JSON.stringify(event, '', 2))
-      console.log('\n\n\n')
+      // console.log(JSON.stringify(event, '', 2))
+      // console.log('\n\n\n')
     })
     oneOffEvents = oneOffEvents
       .filter((a) => a.daysLeft >= 0)
@@ -117,6 +114,8 @@ module.exports = class CountdownWidget {
     yearlyEvents = yearlyEvents
       .filter((a) => a.daysLeft >= 0)
       .sort((a, b) => a.daysLeft > b.daysLeft)
+    // console.log(JSON.stringify(oneOffEvents, null, 2))
+    // console.log(JSON.stringify(yearlyEvents, null, 2))
 
     // Combine the one-off and yearly events
     events = oneOffEvents.concat(yearlyEvents)
@@ -125,11 +124,12 @@ module.exports = class CountdownWidget {
     events = events.slice(0, maxItems).sort((a, b) => {
       return a.daysLeft > b.daysLeft
     })
+    // console.log(JSON.stringify(events, null, 2))
 
     return events
   }
 
-  deployWidget() {
+  async deployWidget() {
     const FONT_NAME = 'Menlo'
     const FONT_SIZE = 12
 
@@ -146,7 +146,7 @@ module.exports = class CountdownWidget {
     }
     const numItems = linesPerWidgetSize[this.config.widgetFamily] || 15
 
-    let events = this.getEvents(numItems)
+    let events = await this.getEvents(numItems)
 
     const numItemsToShow = Math.min(events.length, numItems)
 
@@ -168,7 +168,7 @@ module.exports = class CountdownWidget {
     return list
   }
 
-  deployStackWidget() {
+  async deployStackWidget() {
     const FONT_NAME = 'Menlo'
     const FONT_SIZE = 12
 
@@ -187,7 +187,7 @@ module.exports = class CountdownWidget {
       extraLarge: 18,
     }
     const numItems = linesPerWidgetSize[this.config.widgetFamily] || 9
-    let events = this.getEvents(numItems)
+    let events = await this.getEvents(numItems)
 
     events.slice(0, numItems).forEach((event, i) => {
       let days = `${event.daysLeft}`
@@ -216,8 +216,8 @@ module.exports = class CountdownWidget {
     let hasEndDate = today.getFullYear() < future.getFullYear()
     let dateHasPassed = false //(today.getMonth() >= future.getMonth() || (today.getMonth() === future.getMonth() && today.getDay() > future.getDay()));
 
-    console.log(`hasEndDate: ${hasEndDate}`)
-    console.log(`dateHasPassed: ${dateHasPassed}`)
+    // console.log(`hasEndDate: ${hasEndDate}`)
+    // console.log(`dateHasPassed: ${dateHasPassed}`)
 
     // Set the correct year if we've passed it
     // TODO: refoctor how we are setting the year
