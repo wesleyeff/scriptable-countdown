@@ -1,11 +1,29 @@
 const fm = importModule('countdown/file-manager')
+const createEvent = importModule('countdown/create-event')
 
 module.exports = async function (eventsPath = 'events.json') {
   console.log('Manage Events')
   let savedEvents = await fm.readEvents(eventsPath)
 
+  // Create a new UITable
   const table = new UITable()
-  savedEvents.forEach((event) => {
+
+  // Create single button at top
+  const addEventRow = new UITableRow()
+  addEventRow.backgroundColor = new Color('#6fb77b')
+  addEventRow.dismissOnSelect = false
+  const addCell = addEventRow.addText('New Event')
+  addCell.centerAligned()
+  addEventRow.onSelect = async () => {
+    const newEvent = await createEvent(eventsPath)
+    savedEvents.push(newEvent)
+    addRow(newEvent)
+    table.reload()
+  }
+  table.addRow(addEventRow)
+
+  // Add row function
+  function addRow(event) {
     const r = new UITableRow()
     table.addRow(r)
     r.addCell(UITableCell.text(event.title))
@@ -46,7 +64,10 @@ module.exports = async function (eventsPath = 'events.json') {
       }
     }
     r.addCell(cell)
-  })
+  }
+
+  // set up rows for events
+  savedEvents.forEach(addRow)
 
   table.present()
 }

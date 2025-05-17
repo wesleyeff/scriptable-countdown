@@ -28,9 +28,11 @@ module.exports = async (eventsPath = 'events.json') => {
     day: dayRes,
     year: yearRes,
   }
-  if (titleRes) {
+  if (titleRes && monthRes && dayRes) {
     savedEvents.push(newEvent)
 
     await fm.writeEvents(savedEvents, eventsPath)
+
+    return newEvent
   }
 }

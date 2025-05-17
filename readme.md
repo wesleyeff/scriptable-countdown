@@ -14,13 +14,6 @@ js script to use in the Scriptable ios app.
     new CountdownWidget({ config }).runStack()
     // new CountdownWidget({ config, eventPath: 'my-events.json' }).runStack() // custom json
     ```
-- Create Event Script
-  - Create a script in scriptable with the following js:
-    ```js
-    const createEvent = importModule('countdown/create-event')
-    createEvent()
-    // createEvent('my-events.json') // custom json
-    ```
 - Manage Events Script
   - Create a script in scriptable with the following js:
     ```js
