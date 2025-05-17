@@ -24,7 +24,7 @@ js script to use in the Scriptable ios app.
 - Manage Events Script
   - Create a script in scriptable with the following js:
     ```js
-    const em = importModule('countdown/event-manager')
-    em()
-    // em('my-events.json') // custom json
+    const eventManager = importModule('countdown/event-manager')
+    eventManager()
+    // eventManager('my-events.json') // custom json
     ```
