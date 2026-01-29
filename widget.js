@@ -83,7 +83,7 @@ module.exports = class CountdownWidget {
       // console.log(`creating: ${event.title}`)
 
       let date = new Date(Date.now())
-
+      date.setDate(1)
       date.setMonth(event.month - 1)
       date.setDate(event.day)
 
