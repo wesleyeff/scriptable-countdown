@@ -32,9 +32,6 @@ module.exports = class CountdownWidget {
 
   async getEvents(maxItems) {
     let events = await fm.readEvents(this.eventPath)
-    // console.log(events)
-
-    // let events = this.events
 
     let oneOffEvents = []
     let yearlyEvents = []
@@ -79,6 +76,7 @@ module.exports = class CountdownWidget {
     }
 
     // Create Date object in events list and calculate the number of days left
+    let updatedPinned = false
     events.forEach((event, i) => {
       // console.log(`creating: ${event.title}`)
 
@@ -92,6 +90,11 @@ module.exports = class CountdownWidget {
         event.Date = date
         event.daysLeft = this.calculateDaysLeft(date)
         // event.oneOff = true
+        // Auto-unpin past one-off events
+        if (event.pinned && event.daysLeft < 0) {
+          event.pinned = false
+          updatedPinned = true
+        }
         oneOffEvents.push(event)
       } else {
         date.setFullYear(date.getFullYear())
@@ -104,9 +107,6 @@ module.exports = class CountdownWidget {
         }
         yearlyEvents.push(event)
       }
-
-      // console.log(JSON.stringify(event, '', 2))
-      // console.log('\n\n\n')
     })
     oneOffEvents = oneOffEvents
       .filter((a) => a.daysLeft >= 0)
@@ -114,16 +114,32 @@ module.exports = class CountdownWidget {
     yearlyEvents = yearlyEvents
       .filter((a) => a.daysLeft >= 0)
       .sort((a, b) => a.daysLeft > b.daysLeft)
-    // console.log(JSON.stringify(oneOffEvents, null, 2))
-    // console.log(JSON.stringify(yearlyEvents, null, 2))
+
+    // Persist auto-unpin changes if any
+    if (updatedPinned) {
+      await fm.writeEvents(events, this.eventPath)
+    }
 
     // Combine the one-off and yearly events
-    events = oneOffEvents.concat(yearlyEvents)
+    events = oneOffEvents
+      .concat(yearlyEvents)
+      .sort((a, b) => a.daysLeft - b.daysLeft)
 
-    // Sort ascending by the number of days left
-    events = events.slice(0, maxItems).sort((a, b) => {
-      return a.daysLeft > b.daysLeft
-    })
+    // Ensure pinned events are included, then fill remaining by daysLeft
+    const pinned = events
+      .filter((e) => e.pinned)
+      .sort((a, b) => a.daysLeft - b.daysLeft)
+    const others = events
+      .filter((e) => !e.pinned)
+      .sort((a, b) => a.daysLeft - b.daysLeft)
+    const pinnedCount = Math.min(pinned.length, maxItems)
+    const remaining = Math.max(0, maxItems - pinnedCount)
+    const selected = pinned
+      .slice(0, pinnedCount)
+      .concat(others.slice(0, remaining))
+
+    // Sort the final selection so pinned are in normal position
+    events = selected.sort((a, b) => a.daysLeft - b.daysLeft)
     // console.log(JSON.stringify(events, null, 2))
 
     return events

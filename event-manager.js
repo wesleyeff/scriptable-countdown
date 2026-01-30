@@ -50,7 +50,9 @@ module.exports = async function (eventsPath = 'events.json') {
     table.addRow(r)
     eventRows.push(r)
     r.dismissOnSelect = false
-    const titleCell = UITableCell.text(event.title)
+    const titleCell = UITableCell.text(
+      event.pinned ? `📌 ${event.title}` : event.title,
+    )
     const dateCell = UITableCell.text(`${event.month}/${event.day}`)
     const recurCell = UITableCell.text(!event.year ? '↻' : '')
 
@@ -62,6 +64,7 @@ module.exports = async function (eventsPath = 'events.json') {
       const editAlert = new Alert()
       editAlert.title = 'Edit Event'
       editAlert.addAction('Save')
+      editAlert.addAction(event.pinned ? 'Unpin' : 'Pin')
       editAlert.addDestructiveAction('Delete')
       editAlert.addCancelAction('Cancel')
       editAlert.addTextField('Title', event.title)
@@ -80,6 +83,7 @@ module.exports = async function (eventsPath = 'events.json') {
           month: parseInt(editAlert.textFieldValue(1)),
           day: parseInt(editAlert.textFieldValue(2)),
           year: parseInt(editAlert.textFieldValue(3)),
+          pinned: event.pinned || false,
         }
         if (updated.title && updated.month && updated.day) {
           const idx = savedEvents.findIndex(
@@ -96,8 +100,24 @@ module.exports = async function (eventsPath = 'events.json') {
           }
         }
       }
+      // Pin/Unpin
+      else if (choice === 1) {
+        const idx = savedEvents.findIndex(
+          (e) =>
+            e.title === event.title &&
+            e.month === event.month &&
+            e.day === event.day &&
+            e.year === event.year,
+        )
+        if (idx !== -1) {
+          const current = savedEvents[idx]
+          savedEvents[idx] = { ...current, pinned: !current.pinned }
+          await fm.writeEvents(savedEvents, eventsPath)
+          refreshEventsTable()
+        }
+      }
       // Delete
-      if (choice === 1) {
+      else if (choice === 2) {
         const confirm = new Alert()
         confirm.title = 'Delete Event'
         confirm.message = `${event.title} - ${event.month}/${event.day}`
