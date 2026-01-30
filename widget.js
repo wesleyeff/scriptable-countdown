@@ -1,10 +1,10 @@
 const fm = importModule('countdown/file-manager')
+const eventManager = importModule('countdown/event-manager')
 
 module.exports = class CountdownWidget {
   constructor({ config, events, eventPath }) {
     this.config = config
     this.events = events
-    console.log(eventPath)
     this.eventPath = eventPath || 'events.json'
   }
 
@@ -23,7 +23,7 @@ module.exports = class CountdownWidget {
     let widget = await this.deployStackWidget()
 
     if (!this.config.runsInWidget) {
-      widget.presentSmall()
+      await eventManager(this.eventPath)
     }
 
     Script.setWidget(widget)
@@ -181,8 +181,8 @@ module.exports = class CountdownWidget {
     rootStack.layoutVertically()
 
     const linesPerWidgetSize = {
-      small: 9,
-      medium: 9,
+      small: 10,
+      medium: 10,
       large: 18,
       extraLarge: 18,
     }
